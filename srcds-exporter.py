@@ -39,9 +39,9 @@ def metrics():
     port = request.args.get("port")
     password = request.args.get("password")
 
-    r = []
-    r.append("#HELP srcds_status server status")
-    r.append("#TYPE srcds_status gauge")
+    out = []
+    out.append("#HELP srcds_status server status")
+    out.append("#TYPE srcds_status gauge")
 
     try:
         raw_data = valve.rcon.execute((host,int(port)), password, "stats")
@@ -49,26 +49,25 @@ def metrics():
         header_fields = header.split()
         values_fields = values.split()
     except Exception:
-        r.append("srcds_status 0")
-        return "\n".join(r)
+        out.append("srcds_status 0")
+        return "\n".join(out)
     
     i = 0
 
-    r.append("srcds_status 1")
+    out.append("srcds_status 1")
     while i < len(header_fields):
         f = fields_translate.get(header_fields[i])
         if not f:
             continue
-        r.append("#HELP {} {}".format(f, fields_help[f]))
-        r.append("#TYPE {} gauge".format(f))
-        r.append("{} {}".format(f, values_fields[i]))
+        out.append("#HELP {} {}".format(f, fields_help[f]))
+        out.append("#TYPE {} gauge".format(f))
+        out.append("{} {}".format(f, values_fields[i]))
         i = i + 1
     
-    return "\n".join(r)
+    return "\n".join(out)
     
 
 
 
 if __name__ == '__main__':
-    # Start app
-    app.run(debug=True, port=5000, host='0.0.0.0')
+    app.run(debug=False, port=5000, host='0.0.0.0')
